@@ -21,6 +21,8 @@ public class UserService {
     private final BCryptPasswordEncoder encoder;
     private final JwtUtil jwtUtil;
 
+    private final AccTimeService accTimeService;
+
 
     public Boolean isDuplicate(String userId) {
         return userRepository.existsByUserId(userId);
@@ -37,6 +39,9 @@ public class UserService {
                 .password(encoder.encode(signUpRequest.getPassword()))
                 .build();
         userRepository.save(newUser);
+
+        accTimeService.createAccTime(newUser);
+
 
     }
     @Transactional
