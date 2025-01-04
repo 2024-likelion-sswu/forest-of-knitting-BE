@@ -35,4 +35,10 @@ public class DesignKnitController {
     public List<SavedDesignResponse> getSavedDesigns(@PathVariable("userId") Long userId) {
         return designKnitService.getAllSavedDesigns(userId);
     }
+
+    @GetMapping("/completed/{userId}")
+    public ResponseEntity<List<SavedDesignResponse>> getCompletedSavedDesigns(@PathVariable Long userId) {
+        List<SavedDesignResponse> response = designKnitService.getCompletedSavedDesigns(userId);
+        return ResponseEntity.ok(response);
+    }
 }

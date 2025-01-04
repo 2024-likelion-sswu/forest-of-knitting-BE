@@ -11,6 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface SavedDesignRepository extends JpaRepository<SavedDesign, Long> {
-    List<SavedDesign> findByUserId(Long userId);
+    List<SavedDesign> findByUserAndIsCompletedFalse(Users user);
+    List<SavedDesign> findByUserAndIsCompletedTrue(Users user);
     Optional<SavedDesign> findByUserAndKnitRecord(Users user, KnitRecord knitRecord);
 }
