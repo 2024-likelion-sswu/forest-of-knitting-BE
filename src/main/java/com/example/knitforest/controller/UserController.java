@@ -2,13 +2,16 @@ package com.example.knitforest.controller;
 
 
 import com.example.knitforest.Jwt.ApiResponse;
+import com.example.knitforest.Jwt.CustomUserDetails;
 import com.example.knitforest.dto.Request.LoginRequest;
 import com.example.knitforest.dto.Request.SignUpRequest;
+import com.example.knitforest.dto.Response.HomeResponse;
 import com.example.knitforest.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,6 +63,20 @@ public class UserController {
             return ResponseEntity.ok("사용 가능한 아이디 입니다.");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("중복확인 중 오류가 발생했습니다.");
+        }
+    }
+
+    @GetMapping("/home")
+    public ResponseEntity<?> getHomeData(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+            HomeResponse response = userService.home(userDetails.getUsername());
+            return ResponseEntity.ok(new ApiResponse(true, "홈 정보 조회 성공", response));
+        } catch (UsernameNotFoundException ex) {
+            return ResponseEntity.status(404).body(new ApiResponse(false, ex.getMessage(), null));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, ex.getMessage(), null));
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(new ApiResponse(false, "서버 에러가 발생했습니다.", null));
         }
     }
 
