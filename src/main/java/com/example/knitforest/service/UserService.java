@@ -5,7 +5,10 @@ import com.example.knitforest.Jwt.JwtUtil;
 import com.example.knitforest.dto.Request.LoginRequest;
 import com.example.knitforest.dto.Request.SignUpRequest;
 import com.example.knitforest.dto.Request.UserInfo;
+import com.example.knitforest.dto.Response.HomeResponse;
+import com.example.knitforest.entity.AccTime;
 import com.example.knitforest.entity.Users;
+import com.example.knitforest.repository.AccTimeRepository;
 import com.example.knitforest.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final AccTimeRepository accTimeRepository;
     private final BCryptPasswordEncoder encoder;
     private final JwtUtil jwtUtil;
 
@@ -54,6 +58,18 @@ public class UserService {
         UserInfo userInfo = UserInfo.toDto(user);
         return jwtUtil.createAccessToken(userInfo);
 
+    }
+
+    public HomeResponse home(String userId) {
+        Users user = userRepository.findByUserId(userId).orElseThrow(()->new UsernameNotFoundException("존재하지 않는 유저입니다."));
+        AccTime accTime = accTimeRepository.findByUserId(user.getId()).orElseThrow(()-> new IllegalArgumentException("해당 유저의 누적시간이 존데하지 않습니다."));
+        HomeResponse response = new HomeResponse();
+        response.setUserId(user.getId());
+        response.setNickname(user.getNickname());
+        response.setStep(accTime.getStep());
+        response.setHour(accTime.getAccTime()/60);
+        response.setMinute(accTime.getAccTime()%60);
+        return response;
     }
 
 }
