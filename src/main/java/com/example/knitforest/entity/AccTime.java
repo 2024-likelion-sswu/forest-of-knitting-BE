@@ -2,16 +2,14 @@ package com.example.knitforest.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Entity
+@Builder
 public class AccTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

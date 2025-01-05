@@ -22,4 +22,6 @@ public class Users extends BaseTimeEntity {
 
     private String password;
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private AccTime accTime;
 }
