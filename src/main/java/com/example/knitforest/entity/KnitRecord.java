@@ -26,4 +26,8 @@ public class KnitRecord extends BaseTimeEntity {
     private Boolean isPosted;
 
     private Integer recommendation;
+
+    public void setRecommendation() {
+        this.recommendation++;
+    }
 }

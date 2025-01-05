@@ -2,16 +2,27 @@ package com.example.knitforest.service;
 
 
 import com.example.knitforest.dto.Request.RecordRequest;
+import com.example.knitforest.dto.Response.KnitRecordDetailResponse;
+import com.example.knitforest.dto.Response.KnitRecordResponse;
+import com.example.knitforest.entity.KnitDesignImg;
+import com.example.knitforest.entity.KnitImg;
 import com.example.knitforest.entity.KnitRecord;
 import com.example.knitforest.entity.Users;
+import com.example.knitforest.repository.KnitDesignImgRepository;
+import com.example.knitforest.repository.KnitImgRepository;
 import com.example.knitforest.repository.KnitRecordRepository;
 import com.example.knitforest.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +30,8 @@ public class KnitRecordService {
     private final KnitRecordRepository knitRecordRepository;
     private final UserRepository userRepository;
     private final ImgService imgService;
+    private final KnitImgRepository knitImgRepository;
+    private final KnitDesignImgRepository knitDesignImgRepository;
 
     @Transactional
     public void createRecord(RecordRequest recordRequest, String id) throws IOException {
@@ -36,5 +49,45 @@ public class KnitRecordService {
         imgService.uploadRecordImages(recordRequest.getKnitImages(), recordRequest.getDesignImages(), knitRecord);
 
 
+    }
+    public List<KnitRecordResponse> getKnitRecordsByPage(int page) {
+        PageRequest pageable = PageRequest.of(page, 10);
+
+        Page<KnitRecord> knitRecords = knitRecordRepository.findByIsPostedTrueOrderByRecommendationDesc(pageable);
+
+        return knitRecords.stream()
+                .map(record -> {
+                    KnitRecordResponse response = new KnitRecordResponse();
+                    response.setId(record.getId());
+                    response.setTitle(record.getTitle());
+                    response.setTime(record.getTime());
+                    response.setLevel(record.getLevel());
+                    response.setRecommendation(record.getRecommendation());
+
+                    // 이미지 URL 조회
+                    List<KnitImg> images = knitImgRepository.findAllByKnitRecord_Id(record.getId());
+                    response.setImgUrl(images.isEmpty() ? null : images.get(0).getImgUrl());
+
+                    return response;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void recommendation(Long knitRecordId) {
+        KnitRecord record = knitRecordRepository.findById(knitRecordId).orElseThrow(()->new IllegalArgumentException("존재하지 않는 기록입니다."));
+        record.setRecommendation();
+    }
+
+    public KnitRecordDetailResponse getKnitRecordDetail(Long knitRecordId) {
+        KnitRecord record = knitRecordRepository.findById(knitRecordId).orElseThrow(()->new IllegalArgumentException("존재하지 않는 기록입니다."));
+        List<String> knitImages = knitImgRepository.findAllByKnitRecord_Id(knitRecordId).stream().map(KnitImg::getImgUrl).toList();
+        List<String> designImages = knitDesignImgRepository.findAllByKnitRecord_Id(knitRecordId).stream().map(KnitDesignImg::getImgUrl).toList();
+        KnitRecordDetailResponse response = new KnitRecordDetailResponse();
+        response.setKnitRecord(record);
+        response.setKnitImgUrl(knitImages.isEmpty() ? null : knitImages.getFirst());
+        response.setDesignImgUrl(designImages.isEmpty() ? null : designImages.getFirst());
+
+        return response;
     }
 }
