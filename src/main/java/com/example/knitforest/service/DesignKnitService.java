@@ -42,8 +42,10 @@ public class DesignKnitService {
                             .orElseThrow(() -> new RuntimeException("도안 이미지를 찾을 수 없습니다."));
 
                     return SavedDesignResponse.builder()
-                            .hour(savedDesign.getTime()%60)
-                            .minute(savedDesign.getTime()/60)
+                            .knitRecordId(savedDesign.getKnitRecord().getId())
+                            .imgUrl(designImg.getImgUrl())
+                            .hour(savedDesign.getTime()/60)
+                            .minute(savedDesign.getTime()%60)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -52,7 +54,6 @@ public class DesignKnitService {
     // 완료한 도안 조회0
     @Transactional
     public List<SavedDesignResponse> getCompletedSavedDesigns(String username) {
-        // 사용자 정보가 이미 @AuthenticationPrincipal을 통해 제공되므로 user 객체를 그대로 사용
 
         Users user = userRepository.findByUserId(username)
                 .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 유저입니다."));
@@ -71,9 +72,10 @@ public class DesignKnitService {
                             .orElseThrow(() -> new RuntimeException("도안 이미지를 찾을 수 없습니다."));
 
                     return SavedDesignResponse.builder()
+                            .knitRecordId(savedDesign.getKnitRecord().getId())
                             .imgUrl(designImg.getImgUrl())
-                            .hour(savedDesign.getTime()%60)
-                            .minute(savedDesign.getTime()/60)
+                            .hour(savedDesign.getTime()/60)
+                            .minute(savedDesign.getTime()%60)
                             .build();
                 })
                 .collect(Collectors.toList());
