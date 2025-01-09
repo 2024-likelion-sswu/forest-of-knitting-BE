@@ -5,6 +5,7 @@ import com.example.knitforest.Jwt.CustomUserDetails;
 import com.example.knitforest.dto.Request.DesignKnitRequest;
 import com.example.knitforest.dto.Response.SavedDesignResponse;
 import com.example.knitforest.service.DesignKnitService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -72,4 +73,17 @@ public class DesignKnitController {
         }
     }
 
+    @GetMapping("/time/{id}")
+    public ResponseEntity<?> getSavedDesignTime(@PathVariable Long id) {
+        try {
+            Integer time = designKnitService.getSavedDesignTime(id);
+            return ResponseEntity.ok(new ApiResponse(true, "저장된 도안 시간 조회 성공", time));
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse(false, "저장된 도안을 찾을 수 없습니다.", null));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(false, "서버 오류가 발생했습니다.", null));
+        }
+    }
 }
