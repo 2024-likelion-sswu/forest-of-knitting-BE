@@ -10,11 +10,14 @@ import lombok.Setter;
 public class SavedDesignResponse {
 
     private String imgUrl;
-    private Integer time;
+    private Integer hour;
+    private Integer minute;
 
-    public SavedDesignResponse(String imgUrl, Integer time) {
+    public SavedDesignResponse(String imgUrl, Integer hour, Integer minute) {
         this.imgUrl = imgUrl;
-        this.time = time;
+        this.hour = hour;
+        this.minute = minute;
+
     }
 
 

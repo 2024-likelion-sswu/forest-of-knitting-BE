@@ -28,6 +28,6 @@ public class AccTimeService {
     public void updateAccTime(String userId, Integer hour, Integer minute) {
         Users user = userRepository.findByUserId(userId).orElseThrow(()->new UsernameNotFoundException("존재하지 않는 유저입니다."));
         AccTime accTime = accTimeRepository.findByUserId(user.getId()).orElseThrow(()-> new IllegalArgumentException("해당 유저의 누적시간이 존데하지 않습니다."));
-        accTime.setAccTime( hour * 60 + minute );
+        accTime.setAccTime(accTime.getAccTime() + hour * 60 + minute );
     }
 }
