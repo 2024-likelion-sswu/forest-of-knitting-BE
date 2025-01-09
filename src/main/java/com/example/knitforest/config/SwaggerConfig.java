@@ -28,13 +28,13 @@ public class SwaggerConfig {
         localServer.setUrl(contextPath);
         localServer.setDescription("Local Server");
 
-        //Server prodServer = new Server();
-        //prodServer.setUrl("개발서버주소");
-        //prodServer.setDescription("Production Server");
+        Server prodServer = new Server();
+        prodServer.setUrl("https://sutest.store");
+        prodServer.setDescription("Production Server");
 
         return new OpenAPI()
                 .addServersItem(localServer)
-                //.addServersItem(prodServer)
+                .addServersItem(prodServer)
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(
                         new Components()

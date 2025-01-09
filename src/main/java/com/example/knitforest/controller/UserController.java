@@ -54,7 +54,7 @@ public class UserController {
     }
 
     @GetMapping("/isDuplicate")
-    public ResponseEntity<String> isDuplicate(String userId) {
+    public ResponseEntity<String> isDuplicate(@RequestParam String userId) {
         try {
             Boolean result =userService.isDuplicate(userId);
             if (result) {
