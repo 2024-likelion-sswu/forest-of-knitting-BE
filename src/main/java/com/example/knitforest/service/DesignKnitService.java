@@ -6,6 +6,7 @@ import com.example.knitforest.dto.Request.RecordRequest;
 import com.example.knitforest.dto.Response.SavedDesignResponse;
 import com.example.knitforest.entity.*;
 import com.example.knitforest.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -128,6 +129,14 @@ public class DesignKnitService {
         }
 
         savedDesignRepository.delete(savedDesign);
+    }
+
+    @Transactional
+    public Integer getSavedDesignTime(Long id) {
+        SavedDesign savedDesign = savedDesignRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 저장된 도안을 찾을 수 없습니다."));
+
+        return savedDesign.getTime();
     }
 
 
