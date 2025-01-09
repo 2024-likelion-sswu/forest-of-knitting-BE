@@ -54,4 +54,22 @@ public class DesignKnitController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/cancel/{id}")
+    public ResponseEntity<?> cancelSavedDesign(@PathVariable Long id,
+                                               @AuthenticationPrincipal CustomUserDetails user) {
+        try {
+            designKnitService.cancelSavedDesign(id, user.getUsername());
+            return ResponseEntity.ok(new ApiResponse(true, "저장된 도안을 취소했습니다.", null));
+        } catch (UsernameNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse(false, ex.getMessage(), null));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse(false, ex.getMessage(), null));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(false, ex.getMessage(), null));
+        }
+    }
+
 }

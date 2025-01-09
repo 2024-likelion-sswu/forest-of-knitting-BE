@@ -114,7 +114,21 @@ public class DesignKnitService {
         accTimeRepository.save(accTime);
     }
 
+    public void cancelSavedDesign(Long savedDesignId, String username) {
+        Users user = userRepository.findByUserId(username)
+                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 유저입니다."));
 
+
+        SavedDesign savedDesign = savedDesignRepository.findById(savedDesignId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 저장된 도안을 찾을 수 없습니다."));
+
+
+        if (!savedDesign.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("해당 도안을 삭제할 권한이 없습니다.");
+        }
+
+        savedDesignRepository.delete(savedDesign);
+    }
 
 
 }
