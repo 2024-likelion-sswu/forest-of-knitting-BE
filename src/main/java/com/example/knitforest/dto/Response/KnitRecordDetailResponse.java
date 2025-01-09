@@ -11,4 +11,5 @@ public class KnitRecordDetailResponse {
     private KnitRecord knitRecord;
     private String knitImgUrl;
     private String designImgUrl;
+    private Boolean isBooked;
 }

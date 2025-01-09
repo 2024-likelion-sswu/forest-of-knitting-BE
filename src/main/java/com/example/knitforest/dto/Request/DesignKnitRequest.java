@@ -11,6 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DesignKnitRequest {
     private Long knitRecordId;
-    private Integer time;
+    private Integer hour;
+    private Integer minute;
     private Boolean isCompleted;
 }

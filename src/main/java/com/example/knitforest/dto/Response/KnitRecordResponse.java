@@ -18,4 +18,6 @@ public class KnitRecordResponse {
     private Integer recommendation;
 
     private String ImgUrl;
+
+    private Boolean isBooked;
 }

@@ -25,6 +25,7 @@ public class DesignKnitService {
     private final KnitRecordRepository knitRecordRepository;
     private final SavedDesignRepository savedDesignRepository;
     private final AccTimeRepository accTimeRepository;
+    private final AccTimeService accTimeService;
     private final KnitDesignImgRepository knitDesignImgRepository;
 
 
@@ -41,8 +42,8 @@ public class DesignKnitService {
                             .orElseThrow(() -> new RuntimeException("도안 이미지를 찾을 수 없습니다."));
 
                     return SavedDesignResponse.builder()
-                            .imgUrl(designImg.getImgUrl())
-                            .time(savedDesign.getTime())
+                            .hour(savedDesign.getTime()%60)
+                            .minute(savedDesign.getTime()/60)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -71,7 +72,8 @@ public class DesignKnitService {
 
                     return SavedDesignResponse.builder()
                             .imgUrl(designImg.getImgUrl())
-                            .time(savedDesign.getTime())
+                            .hour(savedDesign.getTime()%60)
+                            .minute(savedDesign.getTime()/60)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -101,21 +103,13 @@ public class DesignKnitService {
             savedDesign.setIsCompleted(true);
         }
 
-        savedDesign.setTime(savedDesign.getTime() + request.getTime());
+        savedDesign.setTime(savedDesign.getTime() + request.getHour()*60 + request.getMinute());
         savedDesignRepository.save(savedDesign);
 
-        AccTime accTime = user.getAccTime();
-        if (accTime == null) {
-            accTime = new AccTime();
-            accTime.setUser(user);
-            accTime.setAccTime(request.getTime());
-        } else {
-            accTime.setAccTime(accTime.getAccTime() + request.getTime());
-        }
+        AccTime accTime = accTimeRepository.findByUserId(user.getId()).orElseThrow(()-> new IllegalArgumentException("해당 유저의 누적시간이 존데하지 않습니다."));
 
+        accTime.setAccTime(accTime.getAccTime() + request.getHour()*60 + request.getMinute());
         accTimeRepository.save(accTime);
-        user.setAccTime(accTime);
-        userRepository.save(user);
     }
 
 

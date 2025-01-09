@@ -32,9 +32,9 @@ public class RecordController {
         }
     }
     @GetMapping("/all")
-    public ResponseEntity<?> getRecords(@RequestParam int page) {
+    public ResponseEntity<?> getRecords(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam int page) {
         try {
-            List<KnitRecordResponse> records = knitRecordService.getKnitRecordsByPage(page);
+            List<KnitRecordResponse> records = knitRecordService.getKnitRecordsByPage(userDetails.getUsername(),page);
             return ResponseEntity.ok(new ApiResponse(true, "기록 조회 성공", records));
 
         } catch (IllegalArgumentException ex) {
@@ -59,9 +59,9 @@ public class RecordController {
     }
 
     @GetMapping("/detail")
-    public ResponseEntity<?> getKnitRecordDetail(@RequestParam Long recordId) {
+    public ResponseEntity<?> getKnitRecordDetail(@AuthenticationPrincipal CustomUserDetails userDetails,@RequestParam Long recordId) {
         try {
-            KnitRecordDetailResponse response = knitRecordService.getKnitRecordDetail(recordId);
+            KnitRecordDetailResponse response = knitRecordService.getKnitRecordDetail(userDetails.getUsername(),recordId);
             return ResponseEntity.ok(new ApiResponse(true, "기록 상세 조회 성공", response));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(new ApiResponse(false, ex.getMessage(), null));
