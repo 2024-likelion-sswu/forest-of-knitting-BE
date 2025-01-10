@@ -9,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -55,23 +56,13 @@ public class DesignKnitController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/cancel/{id}")
-    public ResponseEntity<?> cancelSavedDesign(@PathVariable Long id,
-                                               @AuthenticationPrincipal CustomUserDetails user) {
-        try {
-            designKnitService.cancelSavedDesign(id, user.getUsername());
-            return ResponseEntity.ok(new ApiResponse(true, "저장된 도안을 취소했습니다.", null));
-        } catch (UsernameNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse(false, ex.getMessage(), null));
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse(false, ex.getMessage(), null));
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse(false, ex.getMessage(), null));
-        }
+    @DeleteMapping("/cancel/{knitRecordId}")
+    public ResponseEntity<String> cancelBookmark(@PathVariable Long knitRecordId, Authentication authentication) {
+        String username = authentication.getName();
+        designKnitService.cancelBookmark(knitRecordId, username);
+        return ResponseEntity.ok("북마크 취소 성공");
     }
+
 
     @GetMapping("/time/{id}")
     public ResponseEntity<?> getSavedDesignTime(@PathVariable Long id) {
