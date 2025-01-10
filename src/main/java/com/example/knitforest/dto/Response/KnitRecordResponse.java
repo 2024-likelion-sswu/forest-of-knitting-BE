@@ -20,4 +20,5 @@ public class KnitRecordResponse {
     private String ImgUrl;
 
     private Boolean isBooked;
+    private Boolean myRecommend;
 }
