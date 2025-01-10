@@ -18,4 +18,5 @@ public interface SavedDesignRepository extends JpaRepository<SavedDesign, Long> 
     Optional<SavedDesign> findByUserAndKnitRecord(Users user, KnitRecord knitRecord);
     @Query("SELECT sd.knitRecord FROM SavedDesign sd WHERE sd.user.userId = :userId")
     List<KnitRecord> findKnitRecordsByUserId(@Param("userId") String userId);;
+    Optional<SavedDesign> findByKnitRecordId(Long knitRecordId);
 }
