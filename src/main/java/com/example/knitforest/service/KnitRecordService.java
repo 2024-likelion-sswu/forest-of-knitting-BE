@@ -27,6 +27,7 @@ public class KnitRecordService {
     private final KnitImgRepository knitImgRepository;
     private final KnitDesignImgRepository knitDesignImgRepository;
     private final SavedDesignRepository savedDesignRepository;
+    private final RecommendRepository recommendRepository;
 
     @Transactional
     public void createRecord(RecordRequest recordRequest, String id) throws IOException {
@@ -38,9 +39,7 @@ public class KnitRecordService {
         knitRecord.setTime(time);
         knitRecord.setLevel(recordRequest.getLevel());
         knitRecord.setIsPosted(recordRequest.getIsPosted());
-        knitRecord.setRecommendation(0);
         knitRecordRepository.save(knitRecord);
-
         imgService.uploadRecordImages(recordRequest.getKnitImages(), recordRequest.getDesignImages(), knitRecord);
 
 
@@ -48,18 +47,29 @@ public class KnitRecordService {
     public List<KnitRecordResponse> getKnitRecordsByPage(String userId, int page) {
         PageRequest pageable = PageRequest.of(page, 10);
 
-        Page<KnitRecord> knitRecords = knitRecordRepository.findByIsPostedTrueOrderByRecommendationDesc(pageable);
+        // 추천 수를 기준으로 정렬된 KnitRecord 목록을 가져옵니다.
+        List<KnitRecord> knitRecords = recommendRepository.findAllOrderedByRecommendationCount();
+
+        // 페이지 처리를 위해서 전체 목록을 나누는 방법
+        int startIndex = pageable.getPageNumber() * pageable.getPageSize();
+        int endIndex = Math.min(startIndex + pageable.getPageSize(), knitRecords.size());
+
+        // 페이지에 맞게 데이터를 자르기
+        List<KnitRecord> pageOfKnitRecords = knitRecords.subList(startIndex, endIndex);
+
+        // 사용자 저장된 디자인 목록을 가져옵니다.
         List<KnitRecord> saved = savedDesignRepository.findKnitRecordsByUserId(userId);
 
-        return knitRecords.stream()
+        return pageOfKnitRecords.stream()
                 .map(record -> {
                     KnitRecordResponse response = new KnitRecordResponse();
                     response.setId(record.getId());
                     response.setTitle(record.getTitle());
                     response.setTime(record.getTime());
                     response.setLevel(record.getLevel());
-                    response.setRecommendation(record.getRecommendation());
                     response.setIsBooked(saved.contains(record));
+                    response.setMyRecommend(recommendRepository.existsByUser_UserIdAndKnitRecord(userId, record));
+                    response.setRecommendation(recommendRepository.countRecommendByKnitRecord(record));
 
                     // 이미지 URL 조회
                     List<KnitImg> images = knitImgRepository.findAllByKnitRecord_Id(record.getId());
@@ -70,10 +80,15 @@ public class KnitRecordService {
                 .collect(Collectors.toList());
     }
 
+
     @Transactional
-    public void recommendation(Long knitRecordId) {
+    public void recommendation(String userId, Long knitRecordId) {
         KnitRecord record = knitRecordRepository.findById(knitRecordId).orElseThrow(()->new IllegalArgumentException("존재하지 않는 기록입니다."));
-        record.setRecommendation();
+        Users user = userRepository.findByUserId(userId).orElseThrow(()->new UsernameNotFoundException("존재하지 않는 유저입니다."));
+        Recommend recommend = new Recommend();
+        recommend.setUser(user);
+        recommend.setKnitRecord(record);
+        recommendRepository.save(recommend);
     }
 
     public KnitRecordDetailResponse getKnitRecordDetail(String userId, Long knitRecordId) {
@@ -86,6 +101,8 @@ public class KnitRecordService {
         response.setKnitImgUrl(knitImages.isEmpty() ? null : knitImages.getFirst());
         response.setDesignImgUrl(designImages.isEmpty() ? null : designImages.getFirst());
         response.setIsBooked(saved.contains(record));
+        response.setMyRecommend(recommendRepository.existsByUser_UserIdAndKnitRecord(userId, record));
+        response.setRecommendation(recommendRepository.countRecommendByKnitRecord(record));
 
         return response;
     }

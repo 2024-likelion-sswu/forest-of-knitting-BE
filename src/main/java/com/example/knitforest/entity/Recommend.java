@@ -1,14 +1,17 @@
 package com.example.knitforest.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
+@Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
 @Entity
-public class KnitRecord extends BaseTimeEntity {
-
+public class Recommend {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,12 +20,9 @@ public class KnitRecord extends BaseTimeEntity {
     @JoinColumn(name="user_id", referencedColumnName = "id")
     private Users user;
 
-    private String title;
+    @ManyToOne
+    @JoinColumn(name="recordId", referencedColumnName = "id")
+    private KnitRecord knitRecord;
 
-    private Integer time;
-
-    private Integer level;
-
-    private Boolean isPosted;
 
 }

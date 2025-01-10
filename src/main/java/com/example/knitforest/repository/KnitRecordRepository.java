@@ -11,6 +11,6 @@ import java.util.List;
 
 @Repository
 public interface KnitRecordRepository extends JpaRepository<KnitRecord, Long> {
-    Page<KnitRecord> findByIsPostedTrueOrderByRecommendationDesc(Pageable pageable);
+    //Page<KnitRecord> findByIsPostedTrueOrderByRecommendationDesc(Pageable pageable);
     List<KnitRecord> findByUserId(Long userId);
 }

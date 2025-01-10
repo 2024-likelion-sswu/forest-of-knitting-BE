@@ -47,9 +47,9 @@ public class RecordController {
     }
 
     @PostMapping("/recommend")
-    public ResponseEntity<?> recommendRecord(@RequestParam Long recordId) {
+    public ResponseEntity<?> recommendRecord(@AuthenticationPrincipal CustomUserDetails userDetails,@RequestParam Long recordId) {
         try {
-            knitRecordService.recommendation(recordId);
+            knitRecordService.recommendation(userDetails.getUsername(),recordId);
             return ResponseEntity.ok(new ApiResponse(true, "추천 성공", null));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(new ApiResponse(false, ex.getMessage(), null));
